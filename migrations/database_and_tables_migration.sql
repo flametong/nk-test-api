@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS `categories` (
   `uri` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uri_unique` (`uri`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Дамп данных таблицы nk.categories: ~2 rows (приблизительно)
 /*!40000 ALTER TABLE `categories` DISABLE KEYS */;
@@ -19,7 +19,8 @@ INSERT INTO `categories` (`id`, `title`, `uri`) VALUES
 	(1, 'dairy', 'dairy'),
 	(2, 'bakery', 'bakery'),
 	(3, 'food', 'food'),
-	(4, 'furniture', 'furniture');
+	(4, 'furniture', 'furniture'),
+	(6, 'tech', 'tech');
 /*!40000 ALTER TABLE `categories` ENABLE KEYS */;
 
 -- Дамп структуры для таблица nk.goods
@@ -33,7 +34,7 @@ CREATE TABLE IF NOT EXISTS `goods` (
   `price` decimal(10,2) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `barcode_unique` (`barcode`)
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Дамп данных таблицы nk.goods: ~6 rows (приблизительно)
 /*!40000 ALTER TABLE `goods` DISABLE KEYS */;
@@ -43,7 +44,10 @@ INSERT INTO `goods` (`id`, `title`, `inn`, `barcode`, `description`, `price`) VA
 	(13, 'Sofa', '8743013911', '2280024701000', 'Sofa description', 19999.99),
 	(14, 'Bed', '8743013912', '2280024701001', 'Bed description', 9999.99),
 	(15, 'Closet', '8743013913', '2280024701002', 'Closet description', 29999.99),
-	(16, 'Bun', '8743013914', '2280024701003', 'Bun description', 39.99);
+	(16, 'Bun', '8743013914', '2280024701003', 'Bun description', 39.99),
+	(18, 'Macbook Air 15', '8743013917', '2280024701010', 'Macbook description', 119999.00),
+	(19, 'Samsung Galaxy S23', '8743013918', '2280024701011', 'Galaxy description', 79999.00),
+	(22, 'ASUS Vivobook 15', '8753013900', '2110024701010', 'ASUS Vivobook description extended', 59999.00);
 /*!40000 ALTER TABLE `goods` ENABLE KEYS */;
 
 -- Дамп структуры для таблица nk.goods_categories
@@ -68,9 +72,7 @@ INSERT INTO `goods_categories` (`goods_id`, `category_id`) VALUES
 	(16, 3),
 	(13, 4),
 	(14, 4),
-	(15, 4);
-/*!40000 ALTER TABLE `goods_categories` ENABLE KEYS */;
-
-/*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
-/*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+	(15, 4),
+	(18, 6),
+	(19, 6),
+	(22, 6);

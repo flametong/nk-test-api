@@ -3,12 +3,15 @@
 namespace App\Controllers;
 
 use App\Helpers\RequestHandler;
-use App\Services\GoodsService;
+use App\Services\Api\GoodsService;
+use App\Services\Notifications\NotificationService;
 
 class GoodsController
 {
-    public function __construct(private GoodsService $goodsService)
-    {
+    public function __construct(
+        private GoodsService        $goodsService,
+        private NotificationService $notificationService
+    ) {
     }
 
     public function getGoods(array $params = [])
@@ -16,7 +19,7 @@ class GoodsController
         $goods = $this->goodsService->getGoods($params);
 
         header('Content-Type: application/json');
-        
+
         echo json_encode($goods, JSON_PRETTY_PRINT);
     }
 
@@ -25,6 +28,8 @@ class GoodsController
         $requestBody = RequestHandler::getRawBody();
 
         $this->goodsService->postGoods($requestBody);
+
+        $this->notificationService->sendNotification('123456789', 'Goods added successfully');
 
         RequestHandler::doResponse('success', 'Goods added successfully');
     }
@@ -41,6 +46,8 @@ class GoodsController
     public function deleteGoods(int $id)
     {
         $this->goodsService->deleteGoods($id);
+
+        $this->notificationService->sendNotification('123456789', 'Goods deleted successfully');
 
         RequestHandler::doResponse('success', 'Goods deleted successfully');
     }

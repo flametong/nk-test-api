@@ -5,11 +5,16 @@ require_once ROOT . '/routes/Router.php';
 use App\Controllers\CategoryController;
 use App\Controllers\GoodsController;
 
-use App\Services\CategoryService;
-use App\Services\GoodsService;
+use App\Helpers\DependencyContainer;
 
-$goodsController = new GoodsController(new GoodsService());
+use App\Services\Api\CategoryService;
+use App\Services\Api\GoodsService;
 
+$container = DependencyContainer::getInstance($smsService);
+
+$notificationService = $container->getNotificationService();
+
+$goodsController    = new GoodsController(new GoodsService(), $notificationService);
 $categoryController = new CategoryController(new CategoryService());
 
 Router::get(

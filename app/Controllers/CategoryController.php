@@ -3,7 +3,7 @@
 namespace App\Controllers;
 
 use App\Helpers\RequestHandler;
-use App\Services\CategoryService;
+use App\Services\Api\CategoryService;
 
 class CategoryController
 {
