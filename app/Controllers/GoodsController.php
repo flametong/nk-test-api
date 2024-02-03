@@ -11,7 +11,7 @@ class GoodsController
     {
     }
 
-    public function getGoods(?array $params)
+    public function getGoods(array $params = [])
     {
         $goods = $this->goodsService->getGoods($params);
 

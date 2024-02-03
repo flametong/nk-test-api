@@ -8,7 +8,7 @@ use App\Models\GoodsCategory;
 
 class GoodsService
 {
-    public function getGoods(array $params = []): array
+    public function getGoods(array $params): array
     {
         $goods = Goods::getGoods($params);
 

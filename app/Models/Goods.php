@@ -38,9 +38,9 @@ class Goods
             $stringToFind = '%' . $search . '%';
             $goods->bindParam(':search', $stringToFind);
         }
-        
+
         $goods->execute();
-    
+
         $result = $goods->fetchAll(PDO::FETCH_ASSOC);
 
         return $result;
@@ -149,16 +149,15 @@ class Goods
 
         $goodsCategoriesQuery->bindParam(':goods_id', $id, PDO::PARAM_INT);
 
+        $goodsQuery = Db::raw('
+            DELETE FROM goods
+            WHERE id = :id
+        ');
+
+        $goodsQuery->bindParam(':id', $id, PDO::PARAM_INT);
+
         try {
             $goodsCategoriesQuery->execute();
-
-            $goodsQuery = Db::raw('
-                DELETE FROM goods
-                WHERE id = :id
-            ');
-
-            $goodsQuery->bindParam(':id', $id, PDO::PARAM_INT);
-
             $goodsQuery->execute();
 
             Db::getPdo()->commit();

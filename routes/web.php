@@ -47,4 +47,25 @@ Router::get(
     }
 );
 
+Router::post(
+    '/categories',
+    function () use ($categoryController) {
+        return $categoryController->postCategory();
+    }
+);
+
+Router::put(
+    '/categories/{id}',
+    function ($id) use ($categoryController) {
+        return $categoryController->putCategory($id);
+    }
+);
+
+Router::delete(
+    '/categories/{id}',
+    function ($id) use ($categoryController) {
+        return $categoryController->deleteCategory($id);
+    }
+);
+
 Router::run();
