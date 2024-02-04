@@ -56,7 +56,7 @@ class GoodsTest extends TestCase
     public function testGoodsSearching()
     {
         $expectedGoods = [
-            "id"              => 13,
+            "id"              => 4,
             "goods_title"     => "Yogurt",
             "description"     => "Yogurt description",
             "price"           => "39.90",
