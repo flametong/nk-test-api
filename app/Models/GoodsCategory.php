@@ -2,28 +2,16 @@
 
 namespace App\Models;
 
-use App\Storage\Db;
+use App\Interfaces\IDbHandler;
 use PDO;
 
 class GoodsCategory
 {
-    public function addGoodsCategories(array $goodsCategories): void
+    private static ?IDbHandler $db = null;
+
+    public static function setDb(IDbHandler $db): void
     {
-        $goodsId = (new Goods())->getGoodsByBarcode($goodsCategories['barcode'])['id'];
-
-        $categoryIds = $goodsCategories['category_ids'];
-
-        $query = Db::raw('
-            INSERT IGNORE INTO goods_categories (goods_id, category_id) 
-            VALUES (:goods_id, :category_id)
-        ');
-
-        $query->bindParam(':goods_id', $goodsId);
-        $query->bindParam(':category_id', $categoryId);
-
-        foreach ($categoryIds as $categoryId) {
-            $query->execute();
-        }
+        self::$db = $db;
     }
 
     public static function updateGoodsCategories(int $goodsId, array $requestBody): void
@@ -35,7 +23,7 @@ class GoodsCategory
         $categoryIdOld     = (int) $requestBody['category_id_old'];
         $categoryIdCurrent = (int) $requestBody['category_id_current'];
 
-        $query = Db::raw('
+        $query = self::$db->raw('
             UPDATE goods_categories
             SET category_id = :category_id_current
             WHERE goods_id = :goods_id

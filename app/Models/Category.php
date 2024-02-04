@@ -3,12 +3,19 @@
 namespace App\Models;
 
 use App\Helpers\RequestHandler;
-use App\Storage\Db;
+use App\Interfaces\IDbHandler;
 use PDO;
 
 class Category
 {
-    public static function getCategories(array $params)
+    private static ?IDbHandler $db = null;
+
+    public static function setDb(IDbHandler $db): void
+    {
+        self::$db = $db;
+    }
+
+    public static function getCategories(array $params = [])
     {
         $query = '
             SELECT
@@ -28,7 +35,7 @@ class Category
 
         $query .= ' GROUP BY categories.id';
 
-        $categories = Db::raw($query);
+        $categories = self::$db->raw($query);
 
         if (!empty($search)) {
             $stringToFind = '%' . $search . '%';
@@ -44,10 +51,17 @@ class Category
 
     public static function getCategoryById(int $id): array|false
     {
-        $query = Db::raw('
-            SELECT id, title, uri
+        $query = self::$db->raw('
+            SELECT
+                categories.id        AS id,
+                categories.title     AS title,
+                categories.uri       AS uri,
+                COUNT(categories.id) AS goods_count
             FROM categories
+                LEFT JOIN goods_categories 
+                       ON goods_categories.category_id = categories.id
             WHERE categories.id = :id
+            GROUP BY categories.id
         ');
 
         $query->bindParam(':id', $id);
@@ -61,7 +75,7 @@ class Category
 
     public static function addCategory(array $requestBody): void
     {
-        $query = Db::raw('
+        $query = self::$db->raw('
             INSERT IGNORE INTO categories (title, uri)
             VALUES (:title, :uri)
         ');
@@ -88,7 +102,7 @@ class Category
             return;
         }
 
-        $query = Db::raw('
+        $query = self::$db->raw('
             UPDATE categories
             SET ' . implode(', ', $updateFields) . '
             WHERE id = :id
@@ -103,16 +117,16 @@ class Category
 
     public static function deleteCategory(int $id): void
     {
-        Db::getPdo()->beginTransaction();
+        self::$db->getPdo()->beginTransaction();
 
-        $goodsCategoriesQuery = Db::raw('
+        $goodsCategoriesQuery = self::$db->raw('
             DELETE FROM goods_categories
             WHERE category_id = :category_id
         ');
 
         $goodsCategoriesQuery->bindParam(':category_id', $id, PDO::PARAM_INT);
 
-        $goodsQuery = Db::raw('
+        $goodsQuery = self::$db->raw('
             DELETE FROM categories
             WHERE id = :id
         ');
@@ -123,9 +137,9 @@ class Category
             $goodsCategoriesQuery->execute();
             $goodsQuery->execute();
 
-            Db::getPdo()->commit();
+            self::$db->getPdo()->commit();
         } catch (\Exception $e) {
-            Db::getPdo()->rollBack();
+            self::$db->getPdo()->rollBack();
             RequestHandler::doResponse('error', $e->getMessage(), 500);
         }
     }

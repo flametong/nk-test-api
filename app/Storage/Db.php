@@ -3,48 +3,37 @@
 namespace App\Storage;
 
 use App\Helpers\RequestHandler;
+use App\Interfaces\IDbHandler;
 use PDO;
 use PDOException;
 use PDOStatement;
 
-class Db
+class Db implements IDbHandler
 {
-    use TSingleton;
+    private PDO $pdo;
 
-    private static PDO $pdo;
-
-    private function __construct()
+    public function __construct(array $config)
     {
-        $db = [
-            'dsn'      =>'mysql:host=localhost;dbname=nk;charset=utf8',
-            'user'     => 'root',
-            'password' => ''
-        ];
-        
-        try {
-            self::$pdo = new PDO(
-                $db['dsn'],
-                $db['user'],
-                $db['password']
-            );
+        $dsn      = $config['dsn'];
+        $username = $config['user'];
+        $password = $config['password'];
 
-            self::$pdo->setAttribute(
-                PDO::ATTR_ERRMODE,
-                PDO::ERRMODE_EXCEPTION
-            );
+        try {
+            $this->pdo = new PDO($dsn, $username, $password);
+            $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (PDOException $e) {
             RequestHandler::doResponse('error', $e->getMessage(), 500);
             die();
         }
     }
 
-    public static function getPdo()
+    public function getPdo(): PDO
     {
-        return self::$pdo;
+        return $this->pdo;
     }
 
-    public static function raw(string $sql): PDOStatement
+    public function raw(string $sql): PDOStatement
     {
-        return self::$pdo->prepare($sql);
+        return $this->pdo->prepare($sql);
     }
 }

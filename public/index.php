@@ -3,10 +3,9 @@
 require_once dirname(__DIR__) . '/config/init.php';
 require_once ROOT . '/vendor/autoload.php';
 
-use App\Storage\Db;
-use Dotenv\Dotenv;
+$config = require_once ROOT . '/config/init_db.php';
 
-Db::getInstance();
+use Dotenv\Dotenv;
 
 (Dotenv::createImmutable(dirname(__DIR__)))->load();
 

@@ -3,13 +3,20 @@
 namespace App\Models;
 
 use App\Helpers\RequestHandler;
-use App\Storage\Db;
+use App\Interfaces\IDbHandler;
 use PDO;
 use PDOException;
 
 class Goods
 {
-    public static function getGoods(array $params): array
+    private static ?IDbHandler $db = null;
+
+    public static function setDb(IDbHandler $db): void
+    {
+        self::$db = $db;
+    }
+
+    public static function getGoods(array $params = []): array
     {
         $query = '
             SELECT
@@ -32,7 +39,7 @@ class Goods
 
         $query .= ' GROUP BY goods.id';
 
-        $goods = Db::raw($query);
+        $goods = self::$db->raw($query);
 
         if (!empty($search)) {
             $stringToFind = '%' . $search . '%';
@@ -46,19 +53,29 @@ class Goods
         return $result;
     }
 
-    public static function getGoodsByBarcode(string $barcode): array
+    public static function getGoodsById(int $id): array|false
     {
-        $query = Db::raw('
-            SELECT *
-            FROM goods 
-            WHERE barcode = :barcode
+        $query = self::$db->raw('
+            SELECT
+                goods.id                        AS id,
+                goods.title                     AS goods_title,
+                goods.description               AS description,
+                goods.price                     AS price,
+                GROUP_CONCAT(categories.title)  AS category_titles
+            FROM goods
+                LEFT JOIN goods_categories 
+                       ON goods_categories.goods_id = goods.id
+                LEFT JOIN categories
+                       ON categories.id = goods_categories.category_id
+            WHERE goods.id = :id
+            GROUP BY goods.id
         ');
 
-        $query->bindParam(':barcode', $barcode);
+        $query->bindParam(':id', $id);
 
         $query->execute();
 
-        $goods = $query->fetchAll(PDO::FETCH_ASSOC)[0];
+        $goods = $query->fetch(PDO::FETCH_ASSOC);
 
         return $goods;
     }
@@ -73,9 +90,9 @@ class Goods
         $categoryIds = $goods['category_ids'];
 
         try {
-            Db::getPdo()->beginTransaction();
+            self::$db->getPdo()->beginTransaction();
 
-            $queryGoods = Db::raw('
+            $queryGoods = self::$db->raw('
                 INSERT IGNORE INTO goods (title, inn, barcode, description, price) 
                 VALUES (:title, :inn, :barcode, :description, :price)
             ');
@@ -88,23 +105,23 @@ class Goods
 
             $queryGoods->execute();
 
-            $goodsId = Db::getPdo()->lastInsertId();
+            $goodsId = self::$db->getPdo()->lastInsertId();
 
-            $queryCategories = Db::raw('
+            $queryCategories = self::$db->raw('
                 INSERT IGNORE INTO goods_categories (goods_id, category_id) 
                 VALUES (:goods_id, :category_id)
             ');
 
             $queryCategories->bindParam(':goods_id', $goodsId);
-            $queryCategories->bindParam(':category_id', $categoryId);
 
             foreach ($categoryIds as $categoryId) {
+                $queryCategories->bindParam(':category_id', $categoryId);
                 $queryCategories->execute();
             }
 
-            Db::getPdo()->commit();
+            self::$db->getPdo()->commit();
         } catch (PDOException $e) {
-            Db::getPdo()->rollBack();
+            self::$db->getPdo()->rollBack();
             RequestHandler::doResponse('error', $e->getMessage(), 500);
         }
     }
@@ -125,7 +142,7 @@ class Goods
             return;
         }
 
-        $query = Db::raw('
+        $query = self::$db->raw('
             UPDATE goods 
             SET ' . implode(', ', $updateFields) . '
             WHERE id = :id
@@ -140,16 +157,16 @@ class Goods
 
     public static function deleteGoods(int $id): void
     {
-        Db::getPdo()->beginTransaction();
+        self::$db->getPdo()->beginTransaction();
 
-        $goodsCategoriesQuery = Db::raw('
+        $goodsCategoriesQuery = self::$db->raw('
             DELETE FROM goods_categories
             WHERE goods_id = :goods_id
         ');
 
         $goodsCategoriesQuery->bindParam(':goods_id', $id, PDO::PARAM_INT);
 
-        $goodsQuery = Db::raw('
+        $goodsQuery = self::$db->raw('
             DELETE FROM goods
             WHERE id = :id
         ');
@@ -160,9 +177,9 @@ class Goods
             $goodsCategoriesQuery->execute();
             $goodsQuery->execute();
 
-            Db::getPdo()->commit();
+            self::$db->getPdo()->commit();
         } catch (PDOException $e) {
-            Db::getPdo()->rollBack();
+            self::$db->getPdo()->rollBack();
             RequestHandler::doResponse('error', $e->getMessage(), 500);
         }
     }

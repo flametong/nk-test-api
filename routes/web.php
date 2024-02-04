@@ -9,13 +9,16 @@ use App\Helpers\DependencyContainer;
 
 use App\Services\Api\CategoryService;
 use App\Services\Api\GoodsService;
+use App\Storage\Db;
 
 $container = DependencyContainer::getInstance($smsService);
 
 $notificationService = $container->getNotificationService();
 
-$goodsController    = new GoodsController(new GoodsService(), $notificationService);
-$categoryController = new CategoryController(new CategoryService());
+$db = new Db($config);
+
+$goodsController    = new GoodsController(new GoodsService($db), $notificationService);
+$categoryController = new CategoryController(new CategoryService($db));
 
 Router::get(
     '/goods',

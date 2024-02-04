@@ -3,10 +3,16 @@
 namespace App\Services\Api;
 
 use App\Helpers\RequestHandler;
+use App\Interfaces\IDbHandler;
 use App\Models\Category;
 
 class CategoryService
 {
+    public function __construct(private IDbHandler $db)
+    {
+        Category::setDb($this->db);
+    }
+
     public function getCategories(array $params)
     {
         $categories = Category::getCategories($params);

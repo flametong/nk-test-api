@@ -3,11 +3,18 @@
 namespace App\Services\Api;
 
 use App\Helpers\RequestHandler;
+use App\Interfaces\IDbHandler;
 use App\Models\Goods;
 use App\Models\GoodsCategory;
 
 class GoodsService
 {
+    public function __construct(private IDbHandler $db)
+    {
+        Goods::setDb($this->db);
+        GoodsCategory::setDb($this->db);
+    }
+
     public function getGoods(array $params): array
     {
         $goods = Goods::getGoods($params);
