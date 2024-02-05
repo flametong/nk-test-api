@@ -15,9 +15,7 @@ class CategoryController
     {
         $categories = $this->categoryService->getCategories($params);
 
-        header('Content-Type: application/json');
-        
-        echo json_encode($categories, JSON_PRETTY_PRINT);
+        RequestHandler::doResponse('success', $categories);
     }
 
     public function postCategory()

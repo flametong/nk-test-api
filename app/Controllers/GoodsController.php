@@ -18,9 +18,7 @@ class GoodsController
     {
         $goods = $this->goodsService->getGoods($params);
 
-        header('Content-Type: application/json');
-
-        echo json_encode($goods, JSON_PRETTY_PRINT);
+        RequestHandler::doResponse('success', $goods);
     }
 
     public function postGoods()
