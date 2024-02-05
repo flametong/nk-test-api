@@ -43,7 +43,7 @@ composer install
 ## Примеры запросов и ответов
 
 <div align="center">
-  <img src="https://github.com/flametong/nk-test-api/assets/32167273/b6449990-5d24-48b1-ba10-ed5e5e0d1016" alt="Get goods">
+  <img src="https://github.com/flametong/nk-test-api/assets/32167273/9b5e433f-d989-47ff-a87b-99cd103fcfd0" alt="Get goods">
 </div>
 <div align="center">
   <img src="https://github.com/flametong/nk-test-api/assets/32167273/78b83e2a-e09a-4a16-9123-9cdaa970fc25" alt="Post goods">
